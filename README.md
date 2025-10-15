@@ -1,0 +1,1 @@
+# MathMax.Analyzers.UnusedSymbols
