@@ -7,6 +7,36 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <LangVersion>latest</LangVersion>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>MathMax.Analyzers.UnusedSymbols</PackageId>
+    <PackageVersion>0.1.0</PackageVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>MathMax80</Authors>
+    <Company>MathMax80</Company>
+    <Description>A Roslyn analyzer that detects unused symbols (types, methods, properties, fields,
+      events) in C# code. Helps maintain clean codebases by identifying declared symbols that are
+      not referenced anywhere in the analyzed compilation. Excludes common externally-invoked
+      symbols like MVC/Web API controllers.</Description>
+    <PackageTags>roslyn;analyzer;unused;symbols;code-analysis;csharp;static-analysis</PackageTags>
+    <PackageProjectUrl>https://github.com/MathMax80/MathMax.Analyzers.UnusedSymbols</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MathMax80/MathMax.Analyzers.UnusedSymbols</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>Initial release - Detects unused symbols with USG001 diagnostic rule</PackageReleaseNotes>
+    <Copyright>Copyright (c) 2025 MathMax80</Copyright>
+
+    <!-- Development Dependency - This analyzer should not be included in consuming projects as a runtime dependency -->
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Suppress warning about missing lib/ref assemblies for analyzer packages -->
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+
+    <!-- Ensure this is properly recognized as an analyzer package -->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,9 +47,49 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
   </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>  
+
   <ItemGroup>
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
   </ItemGroup>
+
+  <!-- Include PowerShell scripts for package installation -->
+  <ItemGroup>
+    <None Include="tools\install.ps1" Pack="true" PackagePath="tools\install.ps1" />
+    <None Include="tools\uninstall.ps1" Pack="true" PackagePath="tools\uninstall.ps1" />
+  </ItemGroup>
+
+  <!-- Include the analyzer DLL in the NuGet package -->
+  <ItemGroup>
+    <!-- This ensures the analyzer DLL is included in the correct location for Roslyn analyzers -->
+    <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true"
+      PackagePath="analyzers\dotnet\cs\$(AssemblyName).dll" Visible="false" />
+    <None Include="$(OutputPath)$(AssemblyName).pdb" Pack="true"
+      PackagePath="analyzers\dotnet\cs\$(AssemblyName).pdb" Visible="false"
+      Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
+  </ItemGroup>
+
+  <!-- Post-build target to ensure files exist before packing -->
+  <Target Name="EnsureAnalyzerFilesExist" BeforeTargets="GenerateNuspec"
+    DependsOnTargets="$(BuildDependsOn)" Condition="'$(NoBuild)' != 'true'">
+    <Message Text="Checking analyzer files for packaging..." Importance="high" />
+    <Message Text="Output path: $(OutputPath)" Importance="high" />
+    <Message Text="Assembly name: $(AssemblyName)" Importance="high" />
+    <Error Text="Analyzer DLL not found at $(OutputPath)$(AssemblyName).dll"
+      Condition="!Exists('$(OutputPath)$(AssemblyName).dll')" />
+  </Target>
+
+  <!-- Alternative target for when NoBuild is true - just check files exist -->
+  <Target Name="EnsureAnalyzerFilesExistNoBuild" BeforeTargets="GenerateNuspec"
+    Condition="'$(NoBuild)' == 'true'">
+    <Message Text="Checking analyzer files for packaging (NoBuild mode)..." Importance="high" />
+    <Message Text="Output path: $(OutputPath)" Importance="high" />
+    <Message Text="Assembly name: $(AssemblyName)" Importance="high" />
+    <Error Text="Analyzer DLL not found at $(OutputPath)$(AssemblyName).dll"
+      Condition="!Exists('$(OutputPath)$(AssemblyName).dll')" />
+  </Target>
 
 </Project>

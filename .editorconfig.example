@@ -1,0 +1,23 @@
+# EditorConfig configuration for MathMax.Analyzers.UnusedSymbols
+# Copy this content to your .editorconfig file to configure the analyzer
+
+root = true
+
+[*.cs]
+# Configure the unused symbols analyzer
+dotnet_diagnostic.USG001.severity = warning
+
+# Optionally disable for generated code
+[{bin,obj}/**/*.cs]
+dotnet_diagnostic.USG001.severity = none
+
+[**/*{.designer,.generated,.g}.cs]
+dotnet_diagnostic.USG001.severity = none
+
+# Example: Disable for specific directories
+# [Controllers/**/*.cs]
+# dotnet_diagnostic.USG001.severity = none
+
+# Example: Treat as error for core business logic
+# [Core/**/*.cs]
+# dotnet_diagnostic.USG001.severity = error

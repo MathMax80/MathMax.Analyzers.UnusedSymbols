@@ -2,6 +2,6 @@
 
 ### New Rules
 
-| Rule ID | Category | Severity | Notes                       |
-| ------- | -------- | -------- | --------------------------- |
-| USG001  | Usage    | Warning  | Symbol appears to be unused |
+Rule ID | Category | Severity | Notes
+--------|----------|----------|----------------------
+USG001  | Usage    | Warning  | Symbol appears to be unused
